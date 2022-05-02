@@ -59,4 +59,14 @@ app.post("/participants", async (req, res) => {
   }
 });
 
+app.get("/participants", async (req, res) => {
+    try {
+      const users = await db.collection("participants").find().toArray();
+      res.send(users);
+    } catch (e) {
+      res.status(500).send("Não foi possível encontrar os usuários");
+      console.log("deu erro", e);
+    }
+  });
+
 app.listen(5000, () => console.log("Server working"));
