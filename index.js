@@ -69,6 +69,8 @@ app.get("/participants", async (req, res) => {
   }
 });
 
+//!FIX ME: POST SÓ DÁ ERRO 422
+
 app.post("/messages", async (req, res) => {
   const { to, text, type } = req.body;
   const user = req.headers.user;
@@ -114,6 +116,29 @@ app.post("/messages", async (req, res) => {
   } catch (e) {
     console.log(e);
     res.status(500);
+  }
+});
+
+app.get("/messages", async (req, res) => {
+  const limit = req.query.limit;
+  const user = req.headers.user;
+
+  try {
+    const allMessages = await db.collection("messages").find({}).toArray();
+    const messagesFilter = allMessages.filter((message) => {
+      return (
+        message.to === user || message.from === user || message.to === "Todos"
+      );
+    });
+
+    if (!limit) {
+      res.send(messagesFilter);
+    } else {
+      res.send(messagesFilter.slice(-limit));
+    }
+  } catch (e) {
+    res.sendStatus(500);
+    console.log("deu erro", e);
   }
 });
 
