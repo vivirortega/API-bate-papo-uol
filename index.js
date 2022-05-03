@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import dayjs from "dayjs";
 import joi from "joi";
 import { MongoClient } from "mongodb";
-import express from "express";
 
 const app = express();
 app.use(cors());
@@ -70,8 +69,6 @@ app.get("/participants", async (req, res) => {
   }
 });
 
-//!FIX ME: POST SÓ DÁ ERRO 422
-
 app.post("/messages", async (req, res) => {
   const { to, text, type } = req.body;
   const user = req.headers.user;
@@ -83,10 +80,7 @@ app.post("/messages", async (req, res) => {
     from: joi.string().required(),
   });
 
-  const validation = messageSchema.validate(
-    { to, text, type },
-    { abortEarly: true }
-  );
+  const validation = messageSchema.validate(req.body, user);
 
   if (validation.error) {
     res.status(422).send("Não foi possível enviar a mensagem");
@@ -114,8 +108,8 @@ app.post("/messages", async (req, res) => {
       time: time,
     });
     res.sendStatus(201);
-  } catch (e) {
-    console.log(e);
+  } catch(e) {
+    console.log("deu erro", e);
     res.status(500);
   }
 });
