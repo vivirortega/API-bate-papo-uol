@@ -108,7 +108,7 @@ app.post("/messages", async (req, res) => {
       time: time,
     });
     res.sendStatus(201);
-  } catch(e) {
+  } catch (e) {
     console.log("deu erro", e);
     res.status(500);
   }
@@ -159,6 +159,25 @@ app.post("/status", async (req, res) => {
   }
 });
 
-//TODO: Remoção de usuários inativos
+setInterval(async () => {
+  try {
+    const users = await db.collection("participants").find({}).toArray();
+
+    users.forEach(async (user) => {
+      if (Date.now() - user.lastStatus > 10000) {
+        await db.collection("participants").deleteOne({ _id: user._id });
+        await db.collection("messages").insertOne({
+          from: user.name,
+          to: "Todos",
+          text: "sai da sala...",
+          type: "status",
+          time: dayjs().format("HH:mm:ss"),
+        });
+      }
+    });
+  } catch (e) {
+    console.log("deu ruim, e");
+  }
+}, 15000);
 
 app.listen(5000, () => console.log("Server working"));
