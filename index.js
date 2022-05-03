@@ -2,8 +2,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import dayjs from "dayjs";
-import joi from "joi";
+import joi, { date } from "joi";
 import { MongoClient, MongoServerClosedError } from "mongodb";
+import { raw } from "express";
 
 const app = express();
 app.use(cors());
@@ -141,5 +142,29 @@ app.get("/messages", async (req, res) => {
     console.log("deu erro", e);
   }
 });
+
+app.post("/status", async (req, res) => {
+  const user = req.headers.user;
+
+  try {
+    const checkUser = await db
+      .collection("participants")
+      .findOne({ name: user });
+    if (!checkUser) {
+      res.sendStatus(404);
+      return;
+    }
+
+    await db
+      .collection("participants")
+      .updateOne({ name: user }, { $set: { lastStatus: Date.now() } });
+    res.sendStatus(200);
+  } catch (e) {
+    console.log("deu erro", e);
+    res.sendStatus(500);
+  }
+});
+
+//TODO: Remoção de usuários inativos
 
 app.listen(5000, () => console.log("Server working"));
