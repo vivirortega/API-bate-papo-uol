@@ -2,9 +2,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import dayjs from "dayjs";
-import joi, { date } from "joi";
-import { MongoClient, MongoServerClosedError } from "mongodb";
-import { raw } from "express";
+import joi from "joi";
+import { MongoClient } from "mongodb";
+import express from "express";
 
 const app = express();
 app.use(cors());
